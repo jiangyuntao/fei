@@ -1,4 +1,11 @@
 <?php
+/**
+ * Fei Micro Framework
+ *
+ * @author Thor Jiang <jiangyuntao@gmail.com>
+ * @license The MIT License
+ */
+
 class Fei {
     protected $_registry = array();
     protected $_router = null;
@@ -11,7 +18,9 @@ class Fei {
     }
 
     public function route($routes = array()) {
-        $this->_router = new Route($routes));
+        $route = new Route($routes);
+        $this->_router = $route->dispatch();
+        var_dump($this->_router);
     }
 
     public function start() {
@@ -27,9 +36,5 @@ class Fei {
     }
 
     public function register($classPath = '', $params = array()) {
-    }
-
-    protected function _getRequest() {
-        return isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '/';
     }
 }

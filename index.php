@@ -2,8 +2,7 @@
 require 'fei/Fei.php';
 $app = new Fei();
 $app->route(array(
-    '/', function() {
-        echo 'hello world!';
-    },
+    '/' => 'home',
+    '/product/:alpha' => 'admin/product/show',
 ));
 $app->start();
