@@ -13,7 +13,7 @@ class Route {
     private $_tokens = array(
         ':string' => '([a-zA-Z]+)',
         ':number' => '([0-9]+)',
-        '<\w+:alpha>'  => '([a-zA-Z0-9-_]+)',
+        ':alpha'  => '([a-zA-Z0-9-_]+)',
     );
 
     public function __construct($routes = array()) {
@@ -29,13 +29,21 @@ class Route {
 
         // 路由中包含通配符，正则匹配
         foreach ($this->_routes as $pattern => $route) {
-            $pattern = strtr($pattern, $this->_tokens);
+            preg_match_all('~<(\w+)(:(\w+))?>~', $pattern, $matches);
+
+            $replace = array();
+            foreach ($matches[0] as $key => $match) {
+                if ($matches[2][$key]) {
+                    $matches[2][$key] = ':alpha';
+                }
+                echo $match;
+                $replace[$match] = $this->_tokens[$matches[2][$key]];
+            }
+            $pattern = strtr($pattern, $replace);
+
             if (preg_match('#^/?' . $pattern . '/?$#', $this->_request, $matches)) {
                 unset($matches[0]);
-                return array(
-                    'route' => $route,
-                    'params' => $matches,
-                );
+                var_dump($matches);
             }
         }
     }
