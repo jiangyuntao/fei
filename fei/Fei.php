@@ -20,10 +20,27 @@ class Fei {
     public function route($routes = array()) {
         $route = new Route($routes);
         $this->_router = $route->dispatch();
-        var_dump($this->_router);
     }
 
     public function start() {
+        if (strpos($this->_router, '.') !== false) {
+            list($class, $action) = explode('.', $this->_router);
+        } else {
+            $class = $this->_router;
+            $action = 'index';
+        }
+        $className = implode('', array_map('ucfirst', explode('/', $class))) . 'Controller';
+        $classFile = APP_DIR . '/controller/' . $className . '.php';
+        $actionName = $action . 'Action';
+
+        dump($classFile);
+        if (!file_exists($classFile)) {
+            throw new Exception('no controller file was found in app directory.');
+        }
+        require $classFile;
+
+        $obj = new $className;
+        call_user_func(array($obj, $actionName));
     }
 
     public function autoload($className = '') {
@@ -37,4 +54,13 @@ class Fei {
 
     public function register($classPath = '', $params = array()) {
     }
+}
+
+function dump($variable = null) {
+    ob_start();
+    var_dump($variable);
+    $output = ob_get_clean();
+    echo '<pre>';
+    echo htmlspecialchars($output);
+    echo '</pre>';
 }
