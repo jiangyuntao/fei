@@ -58,5 +58,11 @@ class Route {
                 return $route;
             }
         }
+
+        // 如果在请求在路由列表中不存在，则正常解析
+        $requestParts = explode('/', trim($this->_request, '/'));
+        $
+        foreach ($requestParts as $part) {
+        }
     }
 }
