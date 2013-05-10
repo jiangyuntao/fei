@@ -27,40 +27,34 @@ class Fei {
     }
 
     public function start() {
-        if (is_array($this->_router)) {
-        } else {
-            if (strpos($this->_router, '.') !== false) {
-                list($class, $action) = explode('.', $this->_router);
+        if (!file_exists($this->_router['file'])) {
+            if ($this->get('debug')) {
+                throw new Exception('no controller file "' . $this->_router['file'] . '" was found in app directory.');
             } else {
-                $class = $this->_router;
-                $action = 'index';
+                $this->_pageNotFound();
             }
+        }
+        require $this->_router['file'];
 
-            $classParts = explode('/', $class);
-            end($classParts);
-            $key = key($classParts);
-            $classParts[$key] = ucfirst($classParts[$key]);
-            $classFile = APP_DIR . '/controller/' . implode('/', $classParts) . 'Controller.php';
-            $className = implode('', array_map('ucfirst', explode('/', $class))) . 'Controller';
-            $actionName = $action . 'Action';
+        if (!class_exists($this->_router['class'])) {
+            if ($this->get('debug')) {
+                throw new Exception('no controller class "' . $this->_router['class'] . '" was found.');
+            } else {
+                $this->_pageNotFound();
+            }
         }
 
-        if (!file_exists($classFile)) {
-            throw new Exception('no controller file "' . $classFile . '" was found in app directory.');
-        }
-        require $classFile;
+        $obj = new $this->_router['class'];
 
-        if (!class_exists($className)) {
-            throw new Exception('no controller class "' . $className . '" was found.');
-        }
-
-        $obj = new $className;
-
-        if (!method_exists($obj, $actionName)) {
-            throw new Exception('no method "' . $actionName . '" of class "' . $className . '" was found.');
+        if (!method_exists($obj, $this->_router['method'])) {
+            if ($this->get('debug')) {
+                throw new Exception('no method "' . $this->_router['method'] . '" of class "' . $this->_router['class'] . '" was found.');
+            } else {
+                $this->_pageNotFound();
+            }
         }
 
-        call_user_func(array($obj, $actionName));
+        call_user_func(array($obj, $this->_router['method']));
     }
 
     public function autoload($className = '') {
@@ -73,6 +67,19 @@ class Fei {
     }
 
     public function register($classPath = '', $params = array()) {
+    }
+
+    public function set($variable = '', $value = null) {
+    }
+
+    public function get($variable = '') {
+        return false;
+    }
+
+    private function _pageNotFound() {
+        header('HTTP/1.0 404 Not Found');
+        echo '<h1>404 Not Found</h1>';
+        exit;
     }
 }
 

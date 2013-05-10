@@ -27,7 +27,7 @@ class Route {
     public function dispatch() {
         // 路由中不包含通配符，直接匹配
         if (array_key_exists($this->_request, $this->_routes)) {
-            return $this->_routes[$this->_request];
+            return $this->_getRouterInfo($this->_routes[$this->_request]);
         }
 
         // 遍历所有规则
@@ -55,14 +55,72 @@ class Route {
                     $_GET[$val] = $params[$key];
                 }
 
-                return $route;
+                return $this->_getRouterInfo($route);
             }
         }
 
         // 如果在请求在路由列表中不存在，则正常解析
-        $requestParts = explode('/', trim($this->_request, '/'));
-        $
-        foreach ($requestParts as $part) {
+        $segments = explode('/', trim($this->_request, '/'));
+        $file = APP_DIR . '/controller/';
+        $class = '';
+        $found = false;
+        foreach ($segments as $segment) {
+            if (!$found) {
+                if (file_exists($file . ucfirst($segment) . 'Controller.php')) {
+                    $file .= ucfirst($segment) . 'Controller.php';
+                    $found = true;
+                } else {
+                    $file .= $segment . '/';
+                }
+                $class .= ucfirst($segment);
+                // 使用过的元素移出 $segments 数组
+                array_shift($segments);
+            }
         }
+
+        // 类名称
+        $class .= 'Controller';
+        // 类方法
+        $method = array_shift($segments) . 'Action';
+
+        // 把余下的 URL 其他部分按对转为参数
+        $segmentsCount = count($segments);
+        for ($i = 0; $i < $segmentsCount; $i += 2) {
+            $_GET[$segments[$i]] = isset($segments[$i + 1]) ? $segments[$i + 1] : null;
+        }
+
+        return array(
+            'file' => $file,
+            'class' => $class,
+            'method' => $method,
+        );
+    }
+
+    protected function _getRouterInfo($router = '') {
+        if (strpos($router, '.') !== false) {
+            list($classAlias, $method) = explode('.', $router);
+        } else {
+            $classAlias = $router;
+            $method = 'index';
+        }
+
+        if (strpos($router, '/') !== false) {
+            $classParts = explode('/', $classAlias);
+            end($classParts);
+            $key = key($classParts);
+            $classParts[$key] = ucfirst($classParts[$key]);
+            $file = APP_DIR . '/controller/' . implode('/', $classParts) . 'Controller.php';
+        } else {
+            $file = APP_DIR . '/controller/' . $classAlias . 'Controller.php';
+        }
+
+        $class = implode('', array_map('ucfirst', explode('/', $classAlias))) . 'Controller';
+        $method = $method . 'Action';
+
+        return array(
+            'file' => $file,
+            'class' => $class,
+            'method' => $method,
+        );
     }
 }
