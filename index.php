@@ -1,8 +1,8 @@
 <?php
 require 'fei/Fei.php';
-$app = new Fei('./app');
+$app = Fei::getInstance();
 $app->route(array(
     '/' => 'index',
     '/product/<name>/<page:number>' => 'admin/product.show',
 ));
-$app->start();
+$app->run();

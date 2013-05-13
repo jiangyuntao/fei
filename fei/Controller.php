@@ -7,6 +7,12 @@
  */
 
 class Controller {
+    public $app = null;
+
+    public function __construct() {
+        $this->app = Fei::getInstance();
+    }
+
     public function render() {
     }
 
