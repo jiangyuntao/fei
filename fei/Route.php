@@ -61,7 +61,7 @@ class Route {
 
         // 如果在请求在路由列表中不存在，则正常解析
         $segments = explode('/', trim($this->_request, '/'));
-        $file = APP_DIR . '/controller/';
+        $file = APP_DIR . DS . 'controller' . DS;
         $class = '';
         $found = false;
         foreach ($segments as $segment) {
@@ -70,7 +70,7 @@ class Route {
                     $file .= ucfirst($segment) . 'Controller.php';
                     $found = true;
                 } else {
-                    $file .= $segment . '/';
+                    $file .= $segment . DS;
                 }
                 $class .= ucfirst($segment);
                 // 使用过的元素移出 $segments 数组
@@ -109,9 +109,9 @@ class Route {
             end($classParts);
             $key = key($classParts);
             $classParts[$key] = ucfirst($classParts[$key]);
-            $file = APP_DIR . '/controller/' . implode('/', $classParts) . 'Controller.php';
+            $file = APP_DIR . DS . 'controller' . DS . implode(DS, $classParts) . 'Controller' . EXT;
         } else {
-            $file = APP_DIR . '/controller/' . $classAlias . 'Controller.php';
+            $file = APP_DIR . DS . 'controller' . DS . $classAlias . 'Controller' . EXT;
         }
 
         $class = implode('', array_map('ucfirst', explode('/', $classAlias))) . 'Controller';

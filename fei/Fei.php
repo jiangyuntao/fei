@@ -6,6 +6,12 @@
  * @license The MIT License
  */
 
+// Constants
+define('FEI_VERSION', '0.0.1');
+define('FEI_START_MICROTIME', microtime(true));
+define('DS', DIRECTORY_SEPARATOR);
+define('EXT', '.php');
+
 class Fei {
     /**
      * @var object the instance of class Fei
@@ -60,7 +66,7 @@ class Fei {
     }
 
     public function autoload($className = '') {
-        $classFile = FEI_DIR . '/' . $className . '.php';
+        $classFile = FEI_DIR . DS . $className . EXT;
         if (file_exists($classFile)) {
             require $classFile;
         } else {

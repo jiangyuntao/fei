@@ -16,7 +16,7 @@ class Controller {
     public function render() {
     }
 
-    public function redirect() {
+    public function redirect($url = '') {
     }
 
     public function referer() {
